@@ -423,7 +423,9 @@ async function runReel() {
   window.scrollTo({ top: 0, behavior: 'smooth' });
   await delay(500);
   await revealChecks();
-  await delay(2200);
+  await delay(800);
+  window.scrollTo({ top: document.body.scrollHeight, behavior: 'smooth' });
+  await delay(1400);
 
   // try to click approve — it's blocked
   const approveBtn = document.getElementById('approve-btn');
