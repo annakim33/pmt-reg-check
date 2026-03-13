@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ramp — EU Payment Approval</title>
+<style>
+  :root {
+    --ramp-orange: #FF6C37;
+    --color-background-primary: #ffffff;
+    --color-background-secondary: #f5f5f3;
+    --color-background-success: #eaf3de;
+    --color-background-warning: #faeeda;
+    --color-background-danger: #fcebeb;
+    --color-background-info: #e6f1fb;
+    --color-text-primary: #1a1a1a;
+    --color-text-secondary: #666660;
+    --color-text-success: #3b6d11;
+    --color-text-warning: #854f0b;
+    --color-text-danger: #a32d2d;
+    --color-text-info: #185fa5;
+    --color-border-tertiary: rgba(0,0,0,0.12);
+    --color-border-secondary: rgba(0,0,0,0.22);
+    --color-border-warning: #ef9f27;
+    --color-border-danger: #e24b4a;
+    --border-radius-md: 8px;
+    --border-radius-lg: 12px;
+    --font-sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font-sans); background: #f0efe9; min-height: 100vh; padding: 2rem 1rem; }
+
+  .page { max-width: 680px; margin: 0 auto; padding: 1.5rem; background: var(--color-background-secondary); border-radius: 16px; }
+
+  .header { display: flex; align-items: center; gap: 10px; margin-bottom: 1.5rem; }
+  .logo { font-size: 18px; font-weight: 600; color: var(--ramp-orange); letter-spacing: -0.3px; }
+  .breadcrumb { font-size: 13px; color: var(--color-text-secondary); }
+  .breadcrumb span { color: var(--color-text-primary); }
+
+  .card { background: var(--color-background-primary); border: 0.5px solid var(--color-border-tertiary); border-radius: var(--border-radius-lg); padding: 1.25rem; margin-bottom: 1rem; }
+
+  .section-label { font-size: 11px; font-weight: 500; color: var(--color-text-secondary); text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 12px; }
+
+  .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
+  .field { display: flex; flex-direction: column; gap: 4px; }
+  .field label { font-size: 12px; color: var(--color-text-secondary); }
+  .divider { border: none; border-top: 0.5px solid var(--color-border-tertiary); margin: 1rem 0; }
+
+  .reg-checks { display: flex; flex-direction: column; gap: 8px; }
+  .check-row { display: flex; align-items: flex-start; gap: 10px; padding: 10px 12px; border-radius: var(--border-radius-md); border: 0.5px solid var(--color-border-tertiary); background: var(--color-background-secondary); }
+  .check-icon { width: 20px; height: 20px; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; font-size: 11px; font-weight: 500; }
+  .check-pass { background: var(--color-background-success); color: var(--color-text-success); }
+  .check-warn { background: var(--color-background-warning); color: var(--color-text-warning); }
+  .check-fail { background: var(--color-background-danger); color: var(--color-text-danger); }
+  .check-body { flex: 1; }
+  .check-title { font-size: 13px; font-weight: 500; color: var(--color-text-primary); margin-bottom: 2px; }
+  .check-desc { font-size: 12px; color: var(--color-text-secondary); line-height: 1.5; }
+  .check-desc.warn { color: var(--color-text-warning); }
+  .check-desc.fail { color: var(--color-text-danger); }
+  .check-badge { font-size: 10px; font-weight: 500; padding: 2px 7px; border-radius: 99px; flex-shrink: 0; margin-top: 2px; white-space: nowrap; }
+  .badge-pass { background: var(--color-background-success); color: var(--color-text-success); }
+  .badge-warn { background: var(--color-background-warning); color: var(--color-text-warning); }
+  .badge-fail { background: var(--color-background-danger); color: var(--color-text-danger); }
+
+  .ai-label { display: flex; align-items: center; gap: 6px; font-size: 11px; color: var(--color-text-secondary); margin-bottom: 10px; }
+  .ai-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--ramp-orange); }
+
+  .actions { display: flex; gap: 10px; margin-top: 1rem; }
+  .btn-primary { background: var(--ramp-orange); color: #fff; border: none; padding: 9px 20px; border-radius: var(--border-radius-md); font-size: 13px; font-weight: 500; cursor: pointer; }
+  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
+  .btn-secondary { background: var(--color-background-secondary); color: var(--color-text-primary); border: 0.5px solid var(--color-border-secondary); padding: 9px 20px; border-radius: var(--border-radius-md); font-size: 13px; cursor: pointer; }
+
+  .vendor-row { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .vendor-avatar { width: 36px; height: 36px; border-radius: var(--border-radius-md); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 500; flex-shrink: 0; }
+  .amount-display { font-size: 28px; font-weight: 500; color: var(--color-text-primary); letter-spacing: -0.5px; }
+  .amount-sub { font-size: 12px; color: var(--color-text-secondary); margin-top: 2px; }
+
+  .status-bar { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: var(--border-radius-md); margin-bottom: 1rem; }
+  .status-bar-text { font-size: 12px; font-weight: 500; }
+
+  .selector { display: flex; gap: 8px; margin-bottom: 1rem; }
+  .tab { font-size: 12px; padding: 5px 12px; border-radius: 99px; cursor: pointer; border: 0.5px solid var(--color-border-tertiary); color: var(--color-text-secondary); background: var(--color-background-primary); }
+  .tab.active { background: var(--color-background-primary); color: var(--color-text-primary); border-color: var(--color-border-secondary); font-weight: 500; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+
+  .hint { font-size: 11px; color: var(--color-text-secondary); margin-top: 8px; }
+
+  .approved-banner { display: none; align-items: center; gap: 8px; padding: 10px 14px; border-radius: var(--border-radius-md); background: var(--color-background-success); margin-top: 1rem; }
+  .approved-banner.visible { display: flex; }
+  .approved-banner-text { font-size: 13px; color: var(--color-text-success); font-weight: 500; }
+
+  .built-by { text-align: center; font-size: 11px; color: #999; margin-top: 1.5rem; }
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="header">
+    <div class="logo">Ramp</div>
+    <div class="breadcrumb">Bill pay → <span>Review payment</span></div>
+  </div>
+
+  <div class="selector">
+    <div class="tab" onclick="setScenario('de_fr')">DE → FR vendor</div>
+    <div class="tab active" onclick="setScenario('uk_de')">UK → DE vendor</div>
+    <div class="tab" onclick="setScenario('nl_it')">NL → IT vendor</div>
+  </div>
+
+  <div class="status-bar" id="status-bar">
+    <div id="status-dot" style="width:6px;height:6px;border-radius:50%;flex-shrink:0;"></div>
+    <div class="status-bar-text" id="status-text"></div>
+  </div>
+
+  <div class="card">
+    <div class="section-label">Vendor</div>
+    <div class="vendor-row">
+      <div class="vendor-avatar" id="vendor-avatar"></div>
+      <div>
+        <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);" id="vendor-name"></div>
+        <div style="font-size:12px;color:var(--color-text-secondary);" id="vendor-sub"></div>
+      </div>
+    </div>
+    <hr class="divider">
+    <div class="field-row">
+      <div class="field">
+        <label>Amount</label>
+        <div class="amount-display" id="amount"></div>
+        <div class="amount-sub" id="amount-sub"></div>
+      </div>
+      <div class="field" style="gap:8px;">
+        <label>Details</label>
+        <div style="font-size:14px;font-weight:500;color:var(--color-text-primary);" id="invoice-desc"></div>
+        <div style="font-size:12px;color:var(--color-text-secondary);" id="invoice-due"></div>
+        <div style="font-size:12px;color:var(--color-text-secondary);" id="invoice-num"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="ai-label">
+      <div class="ai-dot"></div>
+      Regulatory check — powered by Ramp AI
+    </div>
+    <div class="section-label">EU compliance</div>
+    <div class="reg-checks" id="checks-container"></div>
+  </div>
+
+  <div class="actions">
+    <button class="btn-secondary" id="action-btn"></button>
+    <button class="btn-primary" id="approve-btn" onclick="handleApprove()">Approve payment</button>
+  </div>
+  <div class="hint" id="hint-text"></div>
+  <div class="approved-banner" id="approved-banner">
+    <div style="width:18px;height:18px;border-radius:50%;background:var(--color-text-success);display:flex;align-items:center;justify-content:center;font-size:10px;color:#fff;flex-shrink:0;">✓</div>
+    <div class="approved-banner-text" id="approved-text"></div>
+  </div>
+</div>
+
+<div class="built-by">Prototype by Anna Kim · Ramp Europe — AI Regulatory Checks</div>
+
+<script>
+const scenarios = {
+  de_fr: {
+    statusBg: 'var(--color-background-warning)',
+    statusDot: 'var(--color-text-warning)',
+    statusText: '2 regulatory checks require attention before approval',
+    statusTextColor: 'var(--color-text-warning)',
+    vendor: { initials: 'ML', bg: 'var(--color-background-info)', color: 'var(--color-text-info)', name: 'Martin & Lefebvre SARL', sub: 'Paris, France · VAT FR48501413321' },
+    amount: '€8,900', amountSub: "≈ £7,620 at today's rate",
+    desc: 'Annual consulting retainer', due: 'Due Apr 2, 2026', num: 'Invoice #INV-2026-0289',
+    checks: [
+      { status: 'pass', title: 'VAT registration', desc: 'FR48501413321 verified with EU VIES registry', badge: 'Verified' },
+      { status: 'fail', title: 'E-invoicing format', desc: "France mandates Factur-X structured XML format for B2B invoices from 2026. Attached PDF does not comply.", badge: 'Action needed' },
+      { status: 'pass', title: 'Sanctions screening', desc: 'Vendor cleared against EU consolidated list', badge: 'Clear' },
+      { status: 'pass', title: 'SEPA Instant eligibility', desc: "Vendor's bank (BNP Paribas Paris) supports SEPA Instant. Settles within 10 seconds.", badge: 'Eligible' },
+      { status: 'warn', title: 'AMLA enhanced due diligence', desc: 'First payment to this vendor above €10,000 threshold. Beneficial ownership verification required under AMLA 2026.', badge: 'Pending' },
+    ],
+    actionBtn: 'Request compliant invoice',
+    approvable: false,
+    hint: 'Approval blocked until e-invoicing and AMLA checks are resolved',
+    approvedMsg: ''
+  },
+  uk_de: {
+    statusBg: 'var(--color-background-warning)',
+    statusDot: 'var(--color-text-warning)',
+    statusText: '1 regulatory check requires attention before approval',
+    statusTextColor: 'var(--color-text-warning)',
+    vendor: { initials: 'BV', bg: 'var(--color-background-info)', color: 'var(--color-text-info)', name: 'Braun Verlag GmbH', sub: 'Frankfurt, Germany · VAT DE814931827' },
+    amount: '€14,250', amountSub: "≈ £12,180 at today's rate",
+    desc: 'Q1 2026 software license', due: 'Due Mar 28, 2026', num: 'Invoice #INV-2026-0312',
+    checks: [
+      { status: 'pass', title: 'VAT registration', desc: 'DE814931827 verified with EU VIES registry', badge: 'Verified' },
+      { status: 'fail', title: 'E-invoicing format', desc: "Germany's B2B e-invoicing mandate (EN 16931) requires structured XML format (ZUGFeRD or XRechnung). Attached PDF invoice does not comply.", badge: 'Action needed' },
+      { status: 'pass', title: 'Sanctions screening', desc: 'Vendor cleared against EU consolidated list and UK HMT register', badge: 'Clear' },
+      { status: 'pass', title: 'SEPA Instant eligibility', desc: "Vendor's bank (Deutsche Bank Frankfurt) supports SEPA Instant. Payment will settle within 10 seconds.", badge: 'Eligible' },
+      { status: 'warn', title: 'AMLA enhanced due diligence', desc: 'First payment to this vendor above €10,000. AMLA 2026 requires beneficial ownership verification. Request UBO documentation before approval.', badge: 'Pending' },
+    ],
+    actionBtn: 'Request compliant invoice',
+    approvable: false,
+    hint: 'Approval blocked until e-invoicing check is resolved',
+    approvedMsg: ''
+  },
+  nl_it: {
+    statusBg: 'var(--color-background-success)',
+    statusDot: 'var(--color-text-success)',
+    statusText: 'All regulatory checks passed — payment ready to approve',
+    statusTextColor: 'var(--color-text-success)',
+    vendor: { initials: 'RS', bg: '#eaf3de', color: '#3b6d11', name: 'Rossi Sistemazioni S.r.l.', sub: 'Milan, Italy · VAT IT08742360968' },
+    amount: '€6,400', amountSub: "≈ £5,475 at today's rate",
+    desc: 'March infrastructure services', due: 'Due Apr 5, 2026', num: 'Invoice #INV-2026-0341',
+    checks: [
+      { status: 'pass', title: 'VAT registration', desc: 'IT08742360968 verified with EU VIES registry', badge: 'Verified' },
+      { status: 'pass', title: 'E-invoicing format', desc: 'FatturaPA XML format received and validated. Compliant with Italian SDI e-invoicing system.', badge: 'Compliant' },
+      { status: 'pass', title: 'Sanctions screening', desc: 'Vendor cleared against EU consolidated list', badge: 'Clear' },
+      { status: 'pass', title: 'SEPA Instant eligibility', desc: "Vendor's bank (Intesa Sanpaolo Milan) supports SEPA Instant. Settles within 10 seconds.", badge: 'Eligible' },
+      { status: 'pass', title: 'AMLA enhanced due diligence', desc: 'Recurring vendor with verified beneficial ownership on file. No additional documentation required.', badge: 'Verified' },
+    ],
+    actionBtn: 'View invoice',
+    approvable: true,
+    hint: '',
+    approvedMsg: 'Payment of €6,400 approved — settling via SEPA Instant to Intesa Sanpaolo Milan'
+  }
+};
+
+let current = 'uk_de';
+
+function setScenario(key) {
+  current = key;
+  document.getElementById('approved-banner').classList.remove('visible');
+  document.getElementById('approve-btn').textContent = 'Approve payment';
+  document.getElementById('approve-btn').disabled = false;
+  document.querySelectorAll('.tab').forEach((t, i) => {
+    t.classList.toggle('active', ['de_fr','uk_de','nl_it'][i] === key);
+  });
+  render(scenarios[key]);
+}
+
+function render(s) {
+  const sb = document.getElementById('status-bar');
+  sb.style.background = s.statusBg;
+  document.getElementById('status-dot').style.background = s.statusDot;
+  const st = document.getElementById('status-text');
+  st.textContent = s.statusText;
+  st.style.color = s.statusTextColor;
+
+  const av = document.getElementById('vendor-avatar');
+  av.textContent = s.vendor.initials;
+  av.style.background = s.vendor.bg;
+  av.style.color = s.vendor.color;
+
+  document.getElementById('vendor-name').textContent = s.vendor.name;
+  document.getElementById('vendor-sub').textContent = s.vendor.sub;
+  document.getElementById('amount').textContent = s.amount;
+  document.getElementById('amount-sub').textContent = s.amountSub;
+  document.getElementById('invoice-desc').textContent = s.desc;
+  document.getElementById('invoice-due').textContent = s.due;
+  document.getElementById('invoice-num').textContent = s.num;
+
+  const container = document.getElementById('checks-container');
+  container.innerHTML = '';
+  s.checks.forEach(c => {
+    const iconClass = c.status === 'pass' ? 'check-pass' : c.status === 'warn' ? 'check-warn' : 'check-fail';
+    const badgeClass = c.status === 'pass' ? 'badge-pass' : c.status === 'warn' ? 'badge-warn' : 'badge-fail';
+    const iconChar = c.status === 'pass' ? '✓' : '!';
+    const descClass = c.status === 'warn' ? 'warn' : c.status === 'fail' ? 'fail' : '';
+    const borderStyle = c.status === 'fail' ? 'border-color: #e24b4a;' : c.status === 'warn' ? 'border-color: #ef9f27;' : '';
+    container.innerHTML += `
+      <div class="check-row" style="${borderStyle}">
+        <div class="check-icon ${iconClass}">${iconChar}</div>
+        <div class="check-body">
+          <div class="check-title">${c.title}</div>
+          <div class="check-desc ${descClass}">${c.desc}</div>
+        </div>
+        <div class="check-badge ${badgeClass}">${c.badge}</div>
+      </div>`;
+  });
+
+  document.getElementById('action-btn').textContent = s.actionBtn;
+  const approveBtn = document.getElementById('approve-btn');
+  approveBtn.disabled = !s.approvable;
+  document.getElementById('hint-text').textContent = s.hint;
+}
+
+function handleApprove() {
+  const s = scenarios[current];
+  if (!s.approvable) return;
+  document.getElementById('approve-btn').textContent = 'Approved';
+  document.getElementById('approve-btn').disabled = true;
+  const banner = document.getElementById('approved-banner');
+  document.getElementById('approved-text').textContent = s.approvedMsg;
+  banner.classList.add('visible');
+}
+
+render(scenarios['uk_de']);
+</script>
+</body>
+</html>
